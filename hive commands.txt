@@ -1,0 +1,68 @@
+
+RUNNING HIVE QUERIES 
+#switch user to hdp123..
+su hdp123
+
+#start hadoop..
+start-all.sh
+
+#go to hive home...
+cd $HIVE_HOME/bin
+
+#start hive...
+./hive
+
+
+show databases;
+
+create database dypcoe;
+
+#use database...
+use dypcoe;
+
+#for practice...
+create table emp(ename string,esal int) row format delimited fields terminated by '_'stored as textfile;
+
+#load txt file...
+load data local inpath '/home/hdp123/files/sample.txt' into table emp;
+
+select * from emp;
+
+
+
+#actual dataset...
+
+create table flight(Year int, Month int, DayofMonth int, DayOfWeek int, DepTime  int, CRSDepTime int, ArrTime int, CRSArrTime int, UniqueCarrier string, FlightNum int, TailNum string, ActualElapsedTime int, CRSElapsedTime int, AirTime int, ArrDelay int, DepDelay int, Origin string, Dest string, Distance int, TaxiIn int, TaxiOut int, Cancelled int, CancellationCode string, Diverted string, CarrierDelay int, WeatherDelay int, NASDelay int,  SecurityDelay int, LateAircraftDelay int) row format delimited fields terminated by ',';
+
+#Load datast into table...
+load data local inpath '/home/hdp123/files/flight_data.csv' into table flight;
+
+select * from filght;
+
+#OPEN IN NEW TERMINAL AND PERFORM FOLLOWING COMMANDS...
+hdfs dfs -mkdir /user/hive/flight
+hdfs dfs -put /home/hdp123/files/flight_ext.csv /user/hive/flight
+hdfs dfs -ls /user/hive/flight
+
+#COME BACK TO OLD TERMINAL...
+create external table flight_ext(Year int, Month int, DayofMonth int, DayOfWeek int, DepTime  int, CRSDepTime int, ArrTime int, CRSArrTime int, UniqueCarrier string, FlightNum int, TailNum string, ActualElapsedTime int, CRSElapsedTime int, AirTime int, ArrDelay int, DepDelay int, Origin string, Dest string, Distance int, TaxiIn int, TaxiOut int, Cancelled int, CancellationCode string, Diverted string, CarrierDelay int, WeatherDelay int, NASDelay int,  SecurityDelay int, LateAircraftDelay int) row format delimited fields terminated by ',' location '/user/hive/flight';
+
+describe formatted flight;
+
+select count(*) from flight_ext;
+
+create table flight_fare( FlightNum int,  Fare int) row format delimited fields terminated by ',';
+
+load data local inpath '/home/hdp123/files/flight_fare.csv' into table flight_fare;
+
+select flight.Origin, flight.Dest, flight_fare.fare from flight join flight_fare on flight.FlightNum=flight_fare.FlightNum;
+
+#find avg..
+select avg(depdelay) from flight;
+
+#find sum...
+select sum(depdelay) from flight;
+
+#find min and max...
+select min(depdelay) from flight;
+select max(depdelay) from flight;
